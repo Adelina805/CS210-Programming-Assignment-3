@@ -5,7 +5,7 @@ using namespace std;
 template<typename T>
 class Node {
 private:
-    // hello test33 ::DDDDDDDD
+    // hello test33 ::DDDDDDDDm lb  kh
     T *data;
     Node<T> *leftChild;
     Node<T> *rightChild;
