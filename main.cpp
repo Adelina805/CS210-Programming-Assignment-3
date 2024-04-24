@@ -1,5 +1,9 @@
 #include <iostream>
+#include <queue>
+#include <climits>
 using namespace std;
+
+const int VERTEXCOUNT = 5;
 
 // Node Class: Nodes for Binary Heap
 template<typename T>
@@ -29,15 +33,12 @@ public:
     T* getData() const {
         return data;
     }
-
     Node<T>* getLeftChild() const {
         return leftChild;
     }
-
     Node<T>* getRightChild() const {
         return rightChild;
     }
-
     Node<T>* getParent() const {
         return parent;
     }
@@ -46,15 +47,12 @@ public:
     void setData(T *newData) {
         this->data = newData;
     }
-
     void setLeftChild(Node<T> *newLeftChild) {
         this->leftChild = newLeftChild;
     }
-
     void setRightChild(Node<T> *newRightChild) {
         this->rightChild = newRightChild;
     }
-
     void setParent(Node<T> *newParent) {
         this->parent = newParent;
     }
@@ -93,9 +91,8 @@ private:
 public:
     // Constructor
     BinaryHeap(T *data) {
-        Node<T> *newNode = new Node<T>(data);
-        root = newNode;
-        numberOfElements = 2;
+        root = new Node<T>(data);
+        numberOfElements = 0;
         height = 0;
     }
 
@@ -104,15 +101,26 @@ public:
         deleteBH(root);
     }
 
+    void deleteBH(Node<T>* node) {
+        if (node == nullptr) {
+            return;
+        }
+        // delete left subtree
+        deleteBH(node->getLeftChild());
+        // delete right subtree
+        deleteBH(node->getRightChild());
+        // delete the node
+        delete node;
+    }
+
+
     // Getters
     Node<T> *getRoot() const {
         return root;
     }
-
     int getnumberOfElements() const {
         return numberOfElements;
     }
-
     int getHeight() const {
         return height;
     }
@@ -121,11 +129,9 @@ public:
     void setRoot(Node<T> *newRoot) {
         root = newRoot;
     }
-
     void setNumberOfElements(int num) {
         numberOfElements = num;
     }
-
     void setHeight(int newHeight) {
         height = newHeight;
     }
@@ -139,46 +145,15 @@ public:
         }
     }
 
-    // insert element recursively
-    void insertElement(T *data) {
-        root = insertElementBST(root, data);
-        numberOfElements++;
-    }
+    int findMinKey(int key[], bool mstSet[])
+    {
+        // Initialize min value
+        int min = INT_MAX, min_index;
 
-    Node<T> *insertElementBST(Node<T> *node, T *data) {
-        if (node == nullptr) { // if empty, return node
-            return new Node<T>(data);
-        }
-        if (data->getValue() < node->getData()->getValue()) { // if smaller than parent, left child
-            node->setLeftChild(insertElementBST(node->getLeftChild(), data));
-        }
-        else if (data->getValue() > node->getData()->getValue()) { // if larger than parent, right child
-            node->setRightChild(insertElementBST(node->getRightChild(), data));
-        }
-
-        // After insertion, update the height of the tree
-        height = calculateHeight(root);
-
-        return node;
-    }
-
-    // find the smallest element in the tree and print it
-    void findSmallest() {
-        Node<T>* smallest = findSmallestHelper(root);
-        if (smallest != nullptr) {
-            smallest->getData()->print();
-            cout << endl;
-        } else {
-            cout << "empty" << endl;
-        }
-    }
-
-    // recursive function to find the smallest element
-    Node<T>* findSmallestHelper(Node<T>* node) const {
-        if (node == nullptr || node->getLeftChild() == nullptr) {
-            return node;
-        }
-        return findSmallestHelper(node->getLeftChild());
+        for (int v = 0; v < VERTEXCOUNT; v++)
+            if (mstSet[v] == false && key[v] < min)
+                min = key[v], min_index = v;
+        return min_index;
     }
 
     // delete element recursively
@@ -189,68 +164,125 @@ public:
         }
         return root; // return updated root node
     }
-
-    // Recursive function to delete the entire Binary Heap
-    void deleteMin(Node<T>* node) {
-        if (node == nullptr)
-            return;
-
-        // Recursively delete left and right subtrees
-        deleteBH(node->getLeftChild());
-        deleteBH(node->getRightChild());
-
-        // Delete the current node
-        delete node;
-    }
 };
 
 
 // Data Class: the data that goes inside the node
 class Data {
 private:
-    int value;
+    int sourceVertex;
+    int destinationVertex;
+    int edgeCost;
 
 public:
     // Constructor
-    Data(int value) {
-        this->value = value;
+    Data(int source, int destination, int cost) {
+        this->sourceVertex = source;
+        this->destinationVertex = destination;
+        this->edgeCost = cost;
     }
 
-    // Getter
-    int getValue() const {
-        return value;
+    // Getters
+    int getSourceVertex() const {
+        return sourceVertex;
+    }
+    int getDestinationVertex() const {
+        return destinationVertex;
+    }
+    int getEdgeCost() const {
+        return edgeCost;
     }
 
     // Setter
-    void setValue(int newValue) {
-        value = newValue;
+    void setSourceVertex(int newSourceVertex) {
+        sourceVertex = newSourceVertex;
+    }
+    void setDestinationVertex(int newDestinationVertex) {
+        destinationVertex = newDestinationVertex;
+    }
+    void setEdgeCost(int newEdgeCost) {
+        edgeCost = newEdgeCost;
     }
 
-    // print the value
+    // print the edgeCost
     void print() const {
-        cout << value;
+        cout << sourceVertex << " - " << destinationVertex << " -> " << edgeCost << endl;
+    }
+
+    bool operator<(const Data& rhs) const {
+        return this->edgeCost > rhs.edgeCost;
+    }
+
+    // compare edgeCost
+    void compare() const {
+        //compare
     }
 };
 
+// This method runs the prims algorithm on the graph and prints the output
+void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
+//    int parent[VERTEXCOUNT]; // Array to store constructed MST
+//    int key[VERTEXCOUNT];    // Key values used to pick minimum weight edge in cut
+//    bool inMST[VERTEXCOUNT];  // To represent set of vertices included in MST
+//
+//    // Initialize all keys as INFINITE
+//    for (int i = 0; i < VERTEXCOUNT; i++) {
+//        key[i] = INT_MAX;
+//        inMST[i] = false;
+//    }
+//
+//    // Always include first 1st vertex in MST.
+//    // Make key 0 so that this vertex is picked as first vertex.
+//    key[0] = 0;
+//    parent[0] = -1; // First node is always root of MST
+//
+//    // The MST will have V vertices
+//    for (int count = 0; count < VERTEXCOUNT - 1; count++) {
+//        // Pick the minimum key vertex from the set of vertices not yet included in MST
+//        //int u = binHeap->extractMin();
+//
+//        // Add the picked vertex to the MST set
+//        inMST[u] = true;
+//
+//        // Update key value and parent index of the adjacent vertices of the picked vertex.
+//        // Consider only those vertices which are not yet included in MST
+//        for (int v = 0; v < VERTEXCOUNT; v++) {
+//            // Update the key only if G[u][v] is smaller than key[v]
+//            if (G[u][v] && !inMST[v] && G[u][v] < key[v]) {
+//                parent[v] = u;
+//                key[v] = G[u][v];
+//                binHeap->decreaseKey(v, key[v]);
+//            }
+//        }
+}
+
 // Main program
 int main() {
-//    int i;
-//    int j;
 
-    int G[i][j] =  {{0, 3, 65, 0, 0},
+    cout << "number of vertices in the graph: " << VERTEXCOUNT << endl;
+
+    // initialize graph
+    int G[VERTEXCOUNT][VERTEXCOUNT] =
+                  {{0, 3, 65, 0, 0},
                    {3, 0, 85, 20, 45},
                    {65, 85, 0, 41, 77},
                    {0, 20, 41, 0, 51},
-                   {0, 45, 77, 51, 0}};
+                   {0, 45, 77, 51, 0}
+                  };
 
-//    int a[] = {10, 45, 23, 67, 89, 34, 12, 99};
-//    Data *newData = new Data(a[0]);
-//    BinarySearchTree<Data> *newBST = new BinarySearchTree<Data>(newData);
-//    for (int i = 1; i < (sizeof(a) / sizeof(int)); i++) {
-//        newData = new Data(a[i]);
-//        newBST->insertElement(newData);
-//    }
-//    newBST->print();
+    // initialize Binary Heap
+    int source = 0; // source vertex
+    int destination = 1; // destination vertex
+    int cost = G[source][destination]; // cost from adjacency matrix
+
+    Data *newData = new Data(source, destination, cost);
+
+    BinaryHeap<Data> *binHeap = new BinaryHeap<Data>(newData);
+
+    // call runPrims method
+    runPrims(G, binHeap);
+
+    delete binHeap;
 
     return 0;
 }
