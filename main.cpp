@@ -1,10 +1,10 @@
 #include <iostream>
 using namespace std;
 
-// Node Class: Node for the BST
+// Node Class: Nodes for Binary Heap
 template<typename T>
 class Node {
-private: // save test
+private:
     T *data;
     Node<T> *leftChild;
     Node<T> *rightChild;
@@ -65,12 +65,26 @@ public:
             data->print();
         }
     }
+
+    // Compare Data values
+    bool compare(const Node<T>* otherNode) const {
+        if (this->data == nullptr && otherNode->getData() == nullptr) {
+            return 0;  // both are null, equal
+        } else if (this->data == nullptr) {
+            return -1; // this->data is null, otherNode data is not: (node < otherNode)
+        } else if (otherNode->getData() == nullptr) {
+            return 1;  // this->data is not null, otherNode data is null: (node > otherNode)
+        } else {
+            return *this->data < *otherNode->getData() ? -1 : (*otherNode->getData() < *this->data ? 1 : 0);
+            // Compare the actual data values using operator <
+        }
+    }
 };
 
 
-// Binary Search Tree Class: Container for Nodes
+// Binary Heap Class: Container for Nodes
 template<typename T>
-class BinarySearchTree {
+class BinaryHeap {
 private:
     Node<T> *root;
     int numberOfElements;
@@ -78,7 +92,7 @@ private:
 
 public:
     // Constructor
-    BinarySearchTree(T *data) {
+    BinaryHeap(T *data) {
         Node<T> *newNode = new Node<T>(data);
         root = newNode;
         numberOfElements = 2;
@@ -86,8 +100,8 @@ public:
     }
 
     // Destructor
-    ~BinarySearchTree() {
-        deleteBST(root);
+    ~BinaryHeap() {
+        deleteBH(root);
     }
 
     // Getters
@@ -116,6 +130,15 @@ public:
         height = newHeight;
     }
 
+    // Function to calculate the height of a node
+    int calculateHeight(Node<T> *node) {
+        if (node == nullptr) {
+            return -1; // Height of an empty tree is -1
+        } else {
+            return 1 + max(calculateHeight(node->getLeftChild()), calculateHeight(node->getRightChild()));
+        }
+    }
+
     // insert element recursively
     void insertElement(T *data) {
         root = insertElementBST(root, data);
@@ -139,155 +162,6 @@ public:
         return node;
     }
 
-    // Function to calculate the height of a node
-    int calculateHeight(Node<T> *node) {
-        if (node == nullptr) {
-            return -1; // Height of an empty tree is -1
-        } else {
-            return 1 + max(calculateHeight(node->getLeftChild()), calculateHeight(node->getRightChild()));
-        }
-    }
-
-    // delete element recursively
-    Node<T> *deleteElement(T *data) {
-        root = deleteNode(root, data);
-        if (root != nullptr) {
-            numberOfElements--;
-        }
-        return root; // return updated root node
-    }
-
-    // recursive function to delete a node
-    Node<T> *deleteNode(Node<T> *node, T *data) {
-        if (node == nullptr) { // if empty, return null
-            return nullptr;
-        }
-        if (containsValue(node, data) == false) { // if not in tree
-            cout << "Number does not exist " << endl;
-            return node;
-        }
-        // search for the node
-        if (data->getValue() < node->getData()->getValue()) { // if less than, go down left branch, recursive
-            node->setLeftChild(deleteNode(node->getLeftChild(), data)); // set as you go
-        } else if (data->getValue() > node->getData()->getValue()) { // if greater than, go down right branch, recursive
-            node->setRightChild(deleteNode(node->getRightChild(), data)); // set as you go
-        } else {
-            // Node with one or no child:
-            if (node->getLeftChild() == nullptr) {
-                Node<T> *temp = node->getRightChild();
-                delete node;
-                return temp;
-            }
-            // Node with one or no child:
-            else if (node->getRightChild() == nullptr) {
-                Node<T> *temp = node->getLeftChild();
-                delete node;
-                return temp;
-            }
-
-            // Node with two children: Get the inorder successor (smallest in the left subtree)
-            Node<T> *temp = findReplacement(node->getLeftChild());
-
-            // Copy the inorder successor's content to this node
-            T* oldData = node->getData();
-            node->setData(new T(*(temp->getData()))); // make copy of data
-            delete oldData; // delete old data
-
-            // Delete the inorder successor
-            node->setLeftChild(deleteNode(node->getLeftChild(), temp->getData()));
-        }
-
-        // After deletion, update the height of the tree
-        height = calculateHeight(root);
-
-        return node;
-    }
-
-    // find the maximum value in the given subtree
-    Node<T>* findReplacement(Node<T> *node) const {
-        while (node->getRightChild() != nullptr) {
-            node = node->getRightChild();
-        }
-        return node;
-    }
-
-    // check if the value is in the binary search tree
-    bool containsValue(Node<T>* node, T* data) {
-        if (node == nullptr) {
-            return false; // Value not found
-        }
-        if (data->getValue() < node->getData()->getValue()) {
-            return containsValue(node->getLeftChild(), data); // Search left subtree
-        } else if (data->getValue() > node->getData()->getValue()) {
-            return containsValue(node->getRightChild(), data); // Search right subtree
-        } else {
-            return true; // Value found
-        }
-    }
-
-    // Recursive function to delete the entire BST
-    void deleteBST(Node<T>* node) {
-        if (node == nullptr)
-            return;
-
-        // Recursively delete left and right subtrees
-        deleteBST(node->getLeftChild());
-        deleteBST(node->getRightChild());
-
-        // Delete the current node
-        delete node;
-    }
-
-    // print entire BST recursively
-    void print() const {
-        bool first = true;
-        printBST(root, first);
-        cout << endl;
-    }
-
-    // pre-order print
-    void printBST(Node<T> *node, bool& first) const {
-        if (node == nullptr) {
-            return; // if null node
-        }
-        if (!first) {
-            cout << ", "; // print comma if not the last element
-        }
-        node->getData()->print(); // print node value
-        first = false;
-        printBST(node->getLeftChild(), first); // print left
-        printBST(node->getRightChild(), first); // print right
-    }
-
-    // find the element in the kth in ascending order of elements in the tree and print it
-    void findKthElement(int k) const {
-        if (k <= 0 || k > numberOfElements) {
-            cout << "Number does not exist" << endl;
-            return;
-        }
-        int count = 0;
-        findKthHelper(root, count, k);
-    }
-
-    // recursive function for in-order traversal to find kth element
-    void findKthHelper(Node<T>* node, int& count, int k) const {
-        if (node == nullptr) {
-            return;
-        }
-        // Traverse left subtree
-        findKthHelper(node->getLeftChild(), count, k);
-
-        // Process current node
-        count++; // Increment count as current node is visited
-        if (count == k) { // If kth element is reached, print it
-            node->getData()->print();
-            cout << endl;
-            return;
-        }
-        // Traverse right subtree
-        findKthHelper(node->getRightChild(), count, k);
-    }
-
     // find the smallest element in the tree and print it
     void findSmallest() {
         Node<T>* smallest = findSmallestHelper(root);
@@ -307,65 +181,26 @@ public:
         return findSmallestHelper(node->getLeftChild());
     }
 
-    // find the biggest element in the tree and print it
-    void findBiggest() {
-        Node<T>* biggest = findBiggestHelper(root);
-        if (biggest != nullptr) {
-            biggest->getData()->print();
-            cout << endl;
-        } else {
-            cout << "empty" << endl;
+    // delete element recursively
+    Node<T> *deleteElement(T *data) {
+        root = deleteNode(root, data);
+        if (root != nullptr) {
+            numberOfElements--;
         }
+        return root; // return updated root node
     }
 
-    // recursive function to find the biggest element
-    Node<T>* findBiggestHelper(Node<T>* node) const {
-        if (node == nullptr || node->getRightChild() == nullptr) {
-            return node;
-        }
-        return findBiggestHelper(node->getRightChild());
-    }
-
-    // print all the elements stored in the BST in ascending order
-    void sortAscending() {
-        bool first = true;
-        sortAHelper(root, first);
-        cout << endl;
-    }
-
-    // recursive function for ascending sort
-    void sortAHelper(Node<T>* node, bool& first) const {
-        if (node == nullptr) { // if empty, return
+    // Recursive function to delete the entire Binary Heap
+    void deleteMin(Node<T>* node) {
+        if (node == nullptr)
             return;
-        }
-        sortAHelper(node->getLeftChild(), first); // print left
-        if (!first) {
-            cout << ", "; // print comma if not the last element
-        }
-        node->getData()->print(); // print node value
-        first = false;
-        sortAHelper(node->getRightChild(), first); // print right
-    }
 
-    // print all the elements stored in the BST in descending order
-    void sortDescending() {
-        bool first = true;
-        sortDHelper(root, first);
-        cout << endl;
-    }
+        // Recursively delete left and right subtrees
+        deleteBH(node->getLeftChild());
+        deleteBH(node->getRightChild());
 
-    // recursive function for descending sort
-    void sortDHelper(Node<T>* node, bool& first) const {
-        if (node == nullptr) { // if empty, return
-            return;
-        }
-        sortDHelper(node->getRightChild(), first); // print right
-        if (!first) {
-            cout << ", "; // print comma if not the last element
-        }
-        node->getData()->print(); // print node value
-        first = false;
-        sortDHelper(node->getLeftChild(), first); // print left
+        // Delete the current node
+        delete node;
     }
 };
 
@@ -399,35 +234,23 @@ public:
 
 // Main program
 int main() {
-    int a[] = {10, 45, 23, 67, 89, 34, 12, 99};
-    Data *newData = new Data(a[0]);
-    BinarySearchTree<Data> *newBST = new BinarySearchTree<Data>(newData);
-    for (int i = 1; i < (sizeof(a) / sizeof(int)); i++) {
-        newData = new Data(a[i]);
-        newBST->insertElement(newData);
-    }
-    newBST->print();
-    newBST->findSmallest();
-    newBST->findBiggest();
-    newData = new Data(10);
-    newBST->deleteElement(newData); // delete root
-    newBST->print();
-    newData = new Data(45);
-    newBST->deleteElement(newData); //delete with two children
-    newBST->print();
-    newData = new Data(12);
-    newBST->deleteElement(newData); //delete with one child
-    newBST->print();
-    newData = new Data(10);
-    newBST->deleteElement(newData); // delete a number that doesn't exist. What will you print?
-    newBST->print();
-    newBST->findKthElement(1); //first element
-    newBST->findKthElement(newBST->getnumberOfElements()); //last element
-    newBST->findKthElement(3); // some element in between
-    newBST->findKthElement(7); // Edge case where item does not exist. What will you print?
-    newBST->findSmallest();
-    newBST->findBiggest();
-    newBST->sortAscending();
-    newBST->sortDescending();
+//    int i;
+//    int j;
+
+    int G[i][j] =  {{0, 3, 65, 0, 0},
+                   {3, 0, 85, 20, 45},
+                   {65, 85, 0, 41, 77},
+                   {0, 20, 41, 0, 51},
+                   {0, 45, 77, 51, 0}};
+
+//    int a[] = {10, 45, 23, 67, 89, 34, 12, 99};
+//    Data *newData = new Data(a[0]);
+//    BinarySearchTree<Data> *newBST = new BinarySearchTree<Data>(newData);
+//    for (int i = 1; i < (sizeof(a) / sizeof(int)); i++) {
+//        newData = new Data(a[i]);
+//        newBST->insertElement(newData);
+//    }
+//    newBST->print();
+
     return 0;
 }
