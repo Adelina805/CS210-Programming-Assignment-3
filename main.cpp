@@ -1,5 +1,5 @@
 #include <iostream>
-#include <queue>
+#include <vector>
 #include <climits>
 using namespace std;
 
@@ -80,6 +80,51 @@ public:
 };
 
 
+// Data Class: the data that goes inside the node
+class Data {
+private:
+    int sourceVertex;
+    int destinationVertex;
+    int edgeCost;
+
+public:
+    // Constructor
+    Data(int source, int destination) {
+        this->sourceVertex = source;
+        this->destinationVertex = destination;
+        edgeCost = 0;
+    }
+
+    // Getters
+    int getSourceVertex() const {
+        return sourceVertex;
+    }
+    int getDestinationVertex() const {
+        return destinationVertex;
+    }
+    int getEdgeCost() const {
+        return edgeCost;
+    }
+
+    // Setter
+    void setSourceVertex(int newSourceVertex) {
+        sourceVertex = newSourceVertex;
+    }
+    void setDestinationVertex(int newDestinationVertex) {
+        destinationVertex = newDestinationVertex;
+    }
+    void setEdgeCost(int newEdgeCost) {
+        edgeCost = newEdgeCost;
+    }
+
+    // print the edgeCost
+    void print() const {
+        cout << sourceVertex << " - " << destinationVertex << " -> " << edgeCost << endl;
+    }
+
+    //compare method
+};
+
 // Binary Heap Class: Container for Nodes
 template<typename T>
 class BinaryHeap {
@@ -113,7 +158,6 @@ public:
         delete node;
     }
 
-
     // Getters
     Node<T> *getRoot() const {
         return root;
@@ -136,24 +180,17 @@ public:
         height = newHeight;
     }
 
-    // Function to calculate the height of a node
-    int calculateHeight(Node<T> *node) {
-        if (node == nullptr) {
-            return -1; // Height of an empty tree is -1
-        } else {
-            return 1 + max(calculateHeight(node->getLeftChild()), calculateHeight(node->getRightChild()));
-        }
-    }
+//    // Function to calculate the height of a node
+//    int calculateHeight(Node<T> *node) {
+//        if (node == nullptr) {
+//            return -1; // Height of an empty tree is -1
+//        } else {
+//            return 1 + max(calculateHeight(node->getLeftChild()), calculateHeight(node->getRightChild()));
+//        }
+//    }
 
-    int findMinKey(int key[], bool mstSet[])
-    {
-        // Initialize min value
-        int min = INT_MAX, min_index;
+    Data deleteMin() const {
 
-        for (int v = 0; v < VERTEXCOUNT; v++)
-            if (mstSet[v] == false && key[v] < min)
-                min = key[v], min_index = v;
-        return min_index;
     }
 
     // delete element recursively
@@ -164,96 +201,48 @@ public:
         }
         return root; // return updated root node
     }
-};
 
-
-// Data Class: the data that goes inside the node
-class Data {
-private:
-    int sourceVertex;
-    int destinationVertex;
-    int edgeCost;
-
-public:
-    // Constructor
-    Data(int source, int destination, int cost) {
-        this->sourceVertex = source;
-        this->destinationVertex = destination;
-        this->edgeCost = cost;
+    void print() {
+        if (root != nullptr) {
+            root->print();
+        }
     }
 
-    // Getters
-    int getSourceVertex() const {
-        return sourceVertex;
-    }
-    int getDestinationVertex() const {
-        return destinationVertex;
-    }
-    int getEdgeCost() const {
-        return edgeCost;
+    void insert(Data data) {
+
     }
 
-    // Setter
-    void setSourceVertex(int newSourceVertex) {
-        sourceVertex = newSourceVertex;
-    }
-    void setDestinationVertex(int newDestinationVertex) {
-        destinationVertex = newDestinationVertex;
-    }
-    void setEdgeCost(int newEdgeCost) {
-        edgeCost = newEdgeCost;
-    }
-
-    // print the edgeCost
-    void print() const {
-        cout << sourceVertex << " - " << destinationVertex << " -> " << edgeCost << endl;
-    }
-
-    bool operator<(const Data& rhs) const {
-        return this->edgeCost > rhs.edgeCost;
-    }
-
-    // compare edgeCost
-    void compare() const {
-        //compare
+    bool isEmpty() {
+        return false;
     }
 };
 
 // This method runs the prims algorithm on the graph and prints the output
 void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
-//    int parent[VERTEXCOUNT]; // Array to store constructed MST
-//    int key[VERTEXCOUNT];    // Key values used to pick minimum weight edge in cut
-//    bool inMST[VERTEXCOUNT];  // To represent set of vertices included in MST
-//
-//    // Initialize all keys as INFINITE
-//    for (int i = 0; i < VERTEXCOUNT; i++) {
-//        key[i] = INT_MAX;
-//        inMST[i] = false;
-//    }
-//
-//    // Always include first 1st vertex in MST.
-//    // Make key 0 so that this vertex is picked as first vertex.
-//    key[0] = 0;
-//    parent[0] = -1; // First node is always root of MST
-//
-//    // The MST will have V vertices
-//    for (int count = 0; count < VERTEXCOUNT - 1; count++) {
-//        // Pick the minimum key vertex from the set of vertices not yet included in MST
-//        //int u = binHeap->extractMin();
-//
-//        // Add the picked vertex to the MST set
-//        inMST[u] = true;
-//
-//        // Update key value and parent index of the adjacent vertices of the picked vertex.
-//        // Consider only those vertices which are not yet included in MST
-//        for (int v = 0; v < VERTEXCOUNT; v++) {
-//            // Update the key only if G[u][v] is smaller than key[v]
-//            if (G[u][v] && !inMST[v] && G[u][v] < key[v]) {
-//                parent[v] = u;
-//                key[v] = G[u][v];
-//                binHeap->decreaseKey(v, key[v]);
-//            }
-//        }
+    vector<bool> visited(VERTEXCOUNT, false);
+    vector<int> key(VERTEXCOUNT, INT_MAX);
+    vector<int> parent(VERTEXCOUNT, -1);
+    int start = 0;
+
+    binHeap->insert(Data(start, 0));
+    key[start] = 0;
+
+    while (!binHeap->isEmpty()) {
+        int u = binHeap->deleteMin().getSourceVertex();
+
+        visited[u] = true;
+
+        for (int v = 0; v < VERTEXCOUNT; v++) {
+            if (G[u][v] && !visited[v] && G[u][v] < key[v]) {
+                key[v] = G[u][v];
+                binHeap->insert(Data(v, key[v]));
+                parent[v] = u;
+            }
+        }
+    }
+
+    for (int i = 1; i < VERTEXCOUNT; i++)
+        printf("Parent: %d, Vertex: %d, Weight: %d \n", parent[i], i, G[i][parent[i]]);
 }
 
 // Main program
@@ -272,12 +261,24 @@ int main() {
 
     // initialize Binary Heap
     int source = 0; // source vertex
-    int destination = 1; // destination vertex
+    int destination = 0; // destination vertex
     int cost = G[source][destination]; // cost from adjacency matrix
 
-    Data *newData = new Data(source, destination, cost);
+    Data *newData = new Data(source, destination);
 
     BinaryHeap<Data> *binHeap = new BinaryHeap<Data>(newData);
+
+    // print statements
+    binHeap->print();
+
+    // Print all edge costs
+    for(int i = 0; i < VERTEXCOUNT; i++) {
+        for(int j = 0; j < VERTEXCOUNT; j++) {
+            if(G[i][j] != 0) {
+                cout << "Edge cost between " << i << " and " << j << ": " << G[i][j] << endl;
+            }
+        }
+    }
 
     // call runPrims method
     runPrims(G, binHeap);
