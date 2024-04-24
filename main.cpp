@@ -4,8 +4,7 @@ using namespace std;
 // Node Class: Node for the BST
 template<typename T>
 class Node {
-private:
-    // hello test33 ::DDDDDDDDm lb  kh
+private: // save test
     T *data;
     Node<T> *leftChild;
     Node<T> *rightChild;
