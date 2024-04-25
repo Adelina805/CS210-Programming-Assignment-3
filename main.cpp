@@ -65,16 +65,8 @@ public:
 
     // Compare Data values
     bool compare(const Node<T>* otherNode) const {
-        if (this->data == nullptr && otherNode->getData() == nullptr) {
-            return 0;  // both are null, equal
-        } else if (this->data == nullptr) {
-            return -1; // this->data is null, otherNode data is not: (node < otherNode)
-        } else if (otherNode->getData() == nullptr) {
-            return 1;  // this->data is not null, otherNode data is null: (node > otherNode)
-        } else {
-            return *this->data < *otherNode->getData() ? -1 : (*otherNode->getData() < *this->data ? 1 : 0);
-            // Compare the actual data values using operator <
-        }
+
+
     }
 };
 
@@ -218,7 +210,7 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
     // initialize visited/unvisited array "0" = false = unvisited and "1" = true = visited
     bool visited[VERTEXCOUNT];
     for (int i = 0; i < VERTEXCOUNT; i++) {
-        visited[i] = false;
+        visited[i] = false; // set all to unvisited
     }
 
     // print initial visited/unvisited array
@@ -226,8 +218,8 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
     for (int i = 0; i < VERTEXCOUNT; i++) {
         cout << visited[i] << " ";
     }
-    cout << endl;
-    cout << endl;
+    cout << endl; cout << endl;
+
 
     // add all edges from the start vertex to the priority queue
     for(int i = 0; i < VERTEXCOUNT; ++i) {
@@ -236,26 +228,25 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
         }
     }
 
-    while(!pq.empty()) {
-        // get the edge with the smallest weight
-        auto edge = pq.top();
-        pq.pop();
+    while(!pq.empty()) { // while priority queue is not empty
+        auto edge = pq.top(); // get top and store
+        pq.pop(); // remove top element
 
         int weight = edge.first;
-        int u = edge.second.first;
-        int v = edge.second.second;
+        int firstVertex = edge.second.first;
+        int secondVertex = edge.second.second;
 
-        // if the edge does not form a cycle
-        if (!visited[u] || !visited[v]) {
-            // Set the unvisited vertex as visited
-            visited[u] = visited[v] = true;
+        // get the edge with the smallest weight
+        if (!visited[firstVertex] || !visited[secondVertex]) { // if the edge does not form a cycle
 
-            cout << "found smallest edge: " << weight << " at vertices: " << u << " - " << v << endl;
+            visited[firstVertex] = visited[secondVertex] = true; // Set the unvisited vertex as visited
 
-            // Add all edges connected to the new vertex to the priority queue
+            cout << "smallest edge: " << firstVertex << " - " << secondVertex << " -> " << weight << endl;
+
+            // add all edges connected to the new vertex to the priority queue
             for (int i = 0; i < VERTEXCOUNT; ++i) {
-                if (G[v][i] != 0 && !visited[i]) {
-                    pq.push({G[v][i], {v, i}});
+                if (G[secondVertex][i] != 0 && !visited[i]) {
+                    pq.push({G[secondVertex][i], {secondVertex, i}});
                 }
             }
         }
@@ -267,8 +258,7 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
     for (int i = 0; i < VERTEXCOUNT; i++) {
         cout << visited[i] << " ";
     }
-    cout << endl;
-    cout << endl;
+    cout << endl; cout << endl;
 
     // print expected output
     cout << "Prim's MST:" << endl;
