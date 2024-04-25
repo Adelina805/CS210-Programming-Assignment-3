@@ -1,4 +1,5 @@
 #include <iostream>
+#include <queue>
 using namespace std;
 
 const int VERTEXCOUNT = 5;
@@ -237,6 +238,9 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
     }
     cout << endl;
 
+    // Initialize a priority queue to store the edges
+    priority_queue<pair<int, pair<int, int>>, vector<pair<int, pair<int, int>>>, greater<pair<int, pair<int, int>>>> pq;
+
     // initialize visited/unvisited array
     // "0" = false = unvisited
     // "1" = true = visited
@@ -245,13 +249,53 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
         visited[i] = false;
     }
 
-    // print visited/unvisited array
-    cout << "initial visited/unvisited: " << endl;
-    for (int i = 0; i < VERTEXCOUNT; i++) {
-        cout << visited[i] << " ";
+    // Add all edges from the start vertex to the priority queue
+    for(int i = 0; i < VERTEXCOUNT; ++i) {
+        if(G[0][i] != 0) {
+            pq.push({G[0][i], {0, i}});
+        }
     }
-    cout << endl;
-    cout << endl;
+
+    while(!pq.empty()) {
+        // Get the edge with the smallest weight
+        auto edge = pq.top();
+        pq.pop();
+
+        int weight = edge.first;
+        int u = edge.second.first;
+        int v = edge.second.second;
+
+        // If the edge does not form a cycle
+        if (!visited[u] || !visited[v]) {
+            // Set the unvisited vertex as visited
+            visited[u] = visited[v] = true;
+
+            cout << "found smallest edge: " << weight << " at vertices: " << u << " - " << v << endl;
+
+            // Add all edges connected to the new vertex to the priority queue
+            for (int i = 0; i < VERTEXCOUNT; ++i) {
+                if (G[v][i] != 0 && !visited[i]) {
+                    pq.push({G[v][i], {v, i}});
+                }
+            }
+        }
+    }
+
+//    // initialize visited/unvisited array
+//    // "0" = false = unvisited
+//    // "1" = true = visited
+//    bool visited[VERTEXCOUNT];
+//    for (int i = 0; i < VERTEXCOUNT; i++) {
+//        visited[i] = false;
+//    }
+
+//    // print visited/unvisited array
+//    cout << "initial visited/unvisited: " << endl;
+//    for (int i = 0; i < VERTEXCOUNT; i++) {
+//        cout << visited[i] << " ";
+//    }
+//    cout << endl;
+//    cout << endl;
 
     // pick arbitrary start vertex 0
     visited[0] = true; // set to visited
@@ -276,13 +320,18 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
     }
     cout << endl;
 
-    // print visited/unvisited array
-    cout << "updated visited/unvisited: " << endl;
-    for (int i = 0; i < VERTEXCOUNT; i++) {
-        cout << visited[i] << " ";
-    }
-    cout << endl;
-    cout << endl;
+
+
+
+
+//
+//    // print visited/unvisited array
+//    cout << "updated visited/unvisited: " << endl;
+//    for (int i = 0; i < VERTEXCOUNT; i++) {
+//        cout << visited[i] << " ";
+//    }
+//    cout << endl;
+//    cout << endl;
 
     cout << "Prim's MST:" << endl;
     binHeap->print();
