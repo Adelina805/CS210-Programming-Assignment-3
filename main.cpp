@@ -87,10 +87,10 @@ private:
 
 public:
     // Constructor
-    Data(int source, int destination) {
+    Data(int source, int destination, int cost) {
         this->sourceVertex = source;
         this->destinationVertex = destination;
-        edgeCost = 0;
+        this->edgeCost = cost;
     }
 
     // Getters
@@ -122,6 +122,7 @@ public:
 
     //compare method to compare value of edgeCost.
 };
+
 
 // Binary Heap Class: Container for Nodes
 template<typename T>
@@ -215,7 +216,7 @@ public:
     }
 
     Data extractMin() {
-        return Data(0, 0);
+        return Data(0, 0, 0);
     }
 
     int getKey(int i) {
@@ -223,36 +224,62 @@ public:
     }
 };
 
+
 // This method runs the prims algorithm on the graph and prints the output
 void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
 
-    cout << "Prim's Algorithm:" << endl;
-    binHeap->print();
-
-    bool visited[VERTEXCOUNT];
-    for (int i = 0; i < VERTEXCOUNT; i++)
-        visited[i] = false;
-
-    binHeap->decreaseKey(0, 0); // start from vertex 0
-
-    while (!binHeap->isEmpty()) {
-        // Extract the vertex with minimum key value
-        Data minVertex = binHeap->extractMin();
-        int u = minVertex.getSourceVertex(); // Get the vertex number
-
-        // Include extracted vertex to visited
-        visited[u] = true;
-
-        // Traverse all adjacent vertices of extracted vertex and update their key values
-        for (int v = 0; v < VERTEXCOUNT; ++v) {
-            // If v is not visited and weight u-v is less than key value of v, update the key value of v
-            if (G[u][v] && visited[v] == false && G[u][v] < binHeap->getKey(v)) {
-                binHeap->decreaseKey(v, G[u][v]);
-            }
+    // Print initial graph and all edge costs
+    cout << "Initial Graph:" << endl;
+    for(int i = 0; i < VERTEXCOUNT; i++) {
+        for(int j = 0; j < VERTEXCOUNT; j++) {
+            cout << "   " << i << " - " << j << ": " << G[i][j] << endl;
         }
     }
-    cout << "test 3" << endl;
+    cout << endl;
+
+    // initialize visited/unvisited array
+    // "0" = false = unvisited
+    // "1" = true = visited
+    bool visited[VERTEXCOUNT];
+    for (int i = 0; i < VERTEXCOUNT; i++) {
+        visited[i] = false;
+    }
+
+    // print visited/unvisited array
+    cout << "initial visited/unvisited: " << endl;
+    for (int i = 0; i < VERTEXCOUNT; i++) {
+        cout << visited[i] << " ";
+    }
+    cout << endl;
+
+    // pick arbitrary start vertex 0
+    visited[0] = true; // set to visited
+
+    // check all the edges connected vertex 0
+    int smallest = 1000;
+    int vertex;
+    for(int i = 0; i < VERTEXCOUNT; ++i) {
+        if(G[0][i] < smallest && G[0][i] != 0) {
+            smallest = G[0][i]; // Pick the lowest cost edge
+            vertex = i;
+        }
+    }
+    cout << "should be: " << G[0][1] << " found smallest: " << smallest << endl;
+
+    // set chosen vertex to visited
+    visited[vertex] = true;
+
+    // print visited/unvisited array
+    cout << "updated visited/unvisited: " << endl;
+    for (int i = 0; i < VERTEXCOUNT; i++) {
+        cout << visited[i] << " ";
+    }
+    cout << endl;
+    cout << endl;
+
+    cout << "Prim's MST:" << endl;
     binHeap->print();
+    // if ALL vertices are visited and "true" the program ends
 }
 
 
@@ -268,28 +295,17 @@ int main() {
                    {0, 45, 77, 51, 0}
                   };
 
-    // initialize Binary Heap
-    int source = 2; // source vertex
-    int destination = 3; // destination vertex
+    int i = 0;
+    int j = 0;
 
-    Data *newData = new Data(source, destination);
+    // initialize generic data
+    Data *newData = new Data(i, j, G[i][j]);
 
+    // initialize Binary Heap with said data
     BinaryHeap<Data> *binHeap = new BinaryHeap<Data>(newData);
-
-    // Print all edge costs
-    for(int i = 0; i < VERTEXCOUNT; i++) {
-        for(int j = 0; j < VERTEXCOUNT; j++) {
-            if(G[i][j] != 0) {
-                cout << "Edge cost between " << i << " and " << j << ": " << G[i][j] << endl;
-            }
-        }
-    }
 
     // call runPrims method
     runPrims(G, binHeap);
-
-    delete binHeap;
-    delete newData;
 
     return 0;
 }
