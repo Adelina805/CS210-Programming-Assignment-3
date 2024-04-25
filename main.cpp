@@ -89,9 +89,9 @@ private:
 public:
     // Constructor
     Data(int source, int destination, int cost) {
-        this->sourceVertex = source;
-        this->destinationVertex = destination;
-        this->edgeCost = cost;
+        sourceVertex = source;
+        destinationVertex = destination;
+        edgeCost = cost;
     }
 
     // Getters
@@ -121,7 +121,7 @@ public:
         cout << sourceVertex << " - " << destinationVertex << " -> " << edgeCost << endl;
     }
 
-    //compare method to compare value of edgeCost.
+    //compare method to compare values of edgeCost
 };
 
 
@@ -152,8 +152,10 @@ public:
         }
         // delete left subtree
         deleteBH(node->getLeftChild());
+
         // delete right subtree
         deleteBH(node->getRightChild());
+
         // delete the node
         delete node;
     }
@@ -180,48 +182,20 @@ public:
         height = newHeight;
     }
 
-    T* deleteMin() const {
-        if (root == nullptr) {
-            return nullptr; // Heap is empty
-        }
-
-
-        return nullptr;
-    }
-
-    // delete element recursively
-    Node<T> *deleteElement(T *data) {
-        root = deleteNode(root, data);
-        if (root != nullptr) {
-            numberOfElements--;
-        }
-        return root; // return updated root node
-    }
-
     void print() {
         if (root != nullptr) {
             root->print();
         }
     }
 
-    void insert(Data data) {
+    // this method inserts the data into the heap and heapifies. This method return nothing.
+    void insertElement(T* data) {
 
     }
 
-    bool isEmpty() {
-        return false;
-    }
+    // this method finds the smallest element in the tree and returns it to the calling method and heapifies. It returns the data object.
+    Data deleteMin() {
 
-    void decreaseKey(int i, int i1) {
-
-    }
-
-    Data extractMin() {
-        return Data(0, 0, 0);
-    }
-
-    int getKey(int i) {
-        return 0;
     }
 };
 
@@ -241,15 +215,21 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
     // Initialize a priority queue to store the edges
     priority_queue<pair<int, pair<int, int>>, vector<pair<int, pair<int, int>>>, greater<pair<int, pair<int, int>>>> pq;
 
-    // initialize visited/unvisited array
-    // "0" = false = unvisited
-    // "1" = true = visited
+    // initialize visited/unvisited array "0" = false = unvisited and "1" = true = visited
     bool visited[VERTEXCOUNT];
     for (int i = 0; i < VERTEXCOUNT; i++) {
         visited[i] = false;
     }
 
-    // Add all edges from the start vertex to the priority queue
+    // print initial visited/unvisited array
+    cout << "visited/unvisited: " << endl;
+    for (int i = 0; i < VERTEXCOUNT; i++) {
+        cout << visited[i] << " ";
+    }
+    cout << endl;
+    cout << endl;
+
+    // add all edges from the start vertex to the priority queue
     for(int i = 0; i < VERTEXCOUNT; ++i) {
         if(G[0][i] != 0) {
             pq.push({G[0][i], {0, i}});
@@ -257,7 +237,7 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
     }
 
     while(!pq.empty()) {
-        // Get the edge with the smallest weight
+        // get the edge with the smallest weight
         auto edge = pq.top();
         pq.pop();
 
@@ -265,7 +245,7 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
         int u = edge.second.first;
         int v = edge.second.second;
 
-        // If the edge does not form a cycle
+        // if the edge does not form a cycle
         if (!visited[u] || !visited[v]) {
             // Set the unvisited vertex as visited
             visited[u] = visited[v] = true;
@@ -280,62 +260,19 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
             }
         }
     }
-
-//    // initialize visited/unvisited array
-//    // "0" = false = unvisited
-//    // "1" = true = visited
-//    bool visited[VERTEXCOUNT];
-//    for (int i = 0; i < VERTEXCOUNT; i++) {
-//        visited[i] = false;
-//    }
-
-//    // print visited/unvisited array
-//    cout << "initial visited/unvisited: " << endl;
-//    for (int i = 0; i < VERTEXCOUNT; i++) {
-//        cout << visited[i] << " ";
-//    }
-//    cout << endl;
-//    cout << endl;
-
-    // pick arbitrary start vertex 0
-    visited[0] = true; // set to visited
-
-    for(int j = 0; j < VERTEXCOUNT; ++j) {
-        // check all the edges connected to the vertex
-        int smallest = 1000;
-        int vertex;
-        for (int i = 0; i < VERTEXCOUNT; ++i) {
-            if (G[j][i] < smallest && G[j][i] != 0) {
-                if (!visited[i] || !visited[j]) {
-                    smallest = G[j][i]; // Pick the lowest cost edge
-                    vertex = i;
-                }
-            }
-        }
-        if(smallest != 1000) { // if an edge was found
-            cout << "found smallest edge: " << smallest << " at vertices: " << j << " - " << vertex << endl;
-            // set chosen vertex to visited
-            visited[vertex] = true;
-        }
-    }
     cout << endl;
 
+    // print updated visited/unvisited array
+    cout << "visited/unvisited: " << endl;
+    for (int i = 0; i < VERTEXCOUNT; i++) {
+        cout << visited[i] << " ";
+    }
+    cout << endl;
+    cout << endl;
 
-
-
-
-//
-//    // print visited/unvisited array
-//    cout << "updated visited/unvisited: " << endl;
-//    for (int i = 0; i < VERTEXCOUNT; i++) {
-//        cout << visited[i] << " ";
-//    }
-//    cout << endl;
-//    cout << endl;
-
+    // print expected output
     cout << "Prim's MST:" << endl;
     binHeap->print();
-    // if ALL vertices are visited and "true" the program ends
 }
 
 
@@ -352,7 +289,7 @@ int main() {
                   };
 
     int i = 0;
-    int j = 0;
+    int j = 2;
 
     // initialize generic data
     Data *newData = new Data(i, j, G[i][j]);
