@@ -257,19 +257,22 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
     visited[0] = true; // set to visited
 
     for(int j = 0; j < VERTEXCOUNT; ++j) {
-        // check all the edges connected vertex 0
+        // check all the edges connected to the vertex
         int smallest = 1000;
         int vertex;
         for (int i = 0; i < VERTEXCOUNT; ++i) {
             if (G[j][i] < smallest && G[j][i] != 0) {
-                smallest = G[j][i]; // Pick the lowest cost edge
-                vertex = i;
+                if (!visited[i] || !visited[j]) {
+                    smallest = G[j][i]; // Pick the lowest cost edge
+                    vertex = i;
+                }
             }
         }
-        cout << "found smallest edge: " << smallest << " at vertices: " << vertex << " - " << j << endl;
-
-        // set chosen vertex to visited
-        visited[vertex] = true;
+        if(smallest != 1000) { // if an edge was found
+            cout << "found smallest edge: " << smallest << " at vertices: " << j << " - " << vertex << endl;
+            // set chosen vertex to visited
+            visited[vertex] = true;
+        }
     }
     cout << endl;
 
