@@ -1,6 +1,4 @@
 #include <iostream>
-#include <vector>
-#include <climits>
 using namespace std;
 
 const int VERTEXCOUNT = 5;
@@ -122,7 +120,7 @@ public:
         cout << sourceVertex << " - " << destinationVertex << " -> " << edgeCost << endl;
     }
 
-    //compare method
+    //compare method to compare value of edgeCost.
 };
 
 // Binary Heap Class: Container for Nodes
@@ -162,7 +160,7 @@ public:
     Node<T> *getRoot() const {
         return root;
     }
-    int getnumberOfElements() const {
+    int getNumberOfElements() const {
         return numberOfElements;
     }
     int getHeight() const {
@@ -180,17 +178,13 @@ public:
         height = newHeight;
     }
 
-//    // Function to calculate the height of a node
-//    int calculateHeight(Node<T> *node) {
-//        if (node == nullptr) {
-//            return -1; // Height of an empty tree is -1
-//        } else {
-//            return 1 + max(calculateHeight(node->getLeftChild()), calculateHeight(node->getRightChild()));
-//        }
-//    }
+    T* deleteMin() const {
+        if (root == nullptr) {
+            return nullptr; // Heap is empty
+        }
 
-    Data deleteMin() const {
 
+        return nullptr;
     }
 
     // delete element recursively
@@ -215,40 +209,55 @@ public:
     bool isEmpty() {
         return false;
     }
+
+    void decreaseKey(int i, int i1) {
+
+    }
+
+    Data extractMin() {
+        return Data(0, 0);
+    }
+
+    int getKey(int i) {
+        return 0;
+    }
 };
 
 // This method runs the prims algorithm on the graph and prints the output
 void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
-    vector<bool> visited(VERTEXCOUNT, false);
-    vector<int> key(VERTEXCOUNT, INT_MAX);
-    vector<int> parent(VERTEXCOUNT, -1);
-    int start = 0;
 
-    binHeap->insert(Data(start, 0));
-    key[start] = 0;
+    cout << "Prim's Algorithm:" << endl;
+    binHeap->print();
+
+    bool visited[VERTEXCOUNT];
+    for (int i = 0; i < VERTEXCOUNT; i++)
+        visited[i] = false;
+
+    binHeap->decreaseKey(0, 0); // start from vertex 0
 
     while (!binHeap->isEmpty()) {
-        int u = binHeap->deleteMin().getSourceVertex();
+        // Extract the vertex with minimum key value
+        Data minVertex = binHeap->extractMin();
+        int u = minVertex.getSourceVertex(); // Get the vertex number
 
+        // Include extracted vertex to visited
         visited[u] = true;
 
-        for (int v = 0; v < VERTEXCOUNT; v++) {
-            if (G[u][v] && !visited[v] && G[u][v] < key[v]) {
-                key[v] = G[u][v];
-                binHeap->insert(Data(v, key[v]));
-                parent[v] = u;
+        // Traverse all adjacent vertices of extracted vertex and update their key values
+        for (int v = 0; v < VERTEXCOUNT; ++v) {
+            // If v is not visited and weight u-v is less than key value of v, update the key value of v
+            if (G[u][v] && visited[v] == false && G[u][v] < binHeap->getKey(v)) {
+                binHeap->decreaseKey(v, G[u][v]);
             }
         }
     }
-
-    for (int i = 1; i < VERTEXCOUNT; i++)
-        printf("Parent: %d, Vertex: %d, Weight: %d \n", parent[i], i, G[i][parent[i]]);
+    cout << "test 3" << endl;
+    binHeap->print();
 }
+
 
 // Main program
 int main() {
-
-    cout << "number of vertices in the graph: " << VERTEXCOUNT << endl;
 
     // initialize graph
     int G[VERTEXCOUNT][VERTEXCOUNT] =
@@ -260,16 +269,12 @@ int main() {
                   };
 
     // initialize Binary Heap
-    int source = 0; // source vertex
-    int destination = 0; // destination vertex
-    int cost = G[source][destination]; // cost from adjacency matrix
+    int source = 2; // source vertex
+    int destination = 3; // destination vertex
 
     Data *newData = new Data(source, destination);
 
     BinaryHeap<Data> *binHeap = new BinaryHeap<Data>(newData);
-
-    // print statements
-    binHeap->print();
 
     // Print all edge costs
     for(int i = 0; i < VERTEXCOUNT; i++) {
@@ -284,6 +289,7 @@ int main() {
     runPrims(G, binHeap);
 
     delete binHeap;
+    delete newData;
 
     return 0;
 }
