@@ -1,5 +1,7 @@
 #include <iostream>
 #include <queue>
+#include <vector>
+#include <utility>
 using namespace std;
 
 const int VERTEXCOUNT = 5;
@@ -63,11 +65,212 @@ public:
         }
     }
 
-    // Compare Data values
+    // compare Data values
     bool compare(const Node<T>* otherNode) const {
-
+        // This class must have a compare method to compare Data values.
 
     }
+};
+
+
+// Binary Heap Class: Container for Nodes
+template<typename T>
+class BinaryHeap {
+private:
+    Node<T> *root;
+    int numberOfElements;
+    int height;
+    vector<T> heap;
+
+    void heapifyUp(int index) {
+        if (index <= 0) return;
+        int parent = (index - 1) / 2;
+        if (heap[parent].weight > heap[index].weight) {
+            swap(heap[parent], heap[index]);
+            heapifyUp(parent);
+        }
+    }
+
+    void heapifyDown(int index) {
+        int left = 2 * index + 1;
+        int right = 2 * index + 2;
+        int smallest = index;
+
+        if (left < heap.size() && heap[left].weight < heap[smallest].weight) {
+            smallest = left;
+        }
+
+        if (right < heap.size() && heap[right].weight < heap[smallest].weight) {
+            smallest = right;
+        }
+
+        if (smallest != index) {
+            swap(heap[index], heap[smallest]);
+            heapifyDown(smallest);
+        }
+    }
+
+public:
+    // Constructor
+    BinaryHeap(T *data) {
+        root = new Node<T>(data);
+        numberOfElements = 0;
+        height = 0;
+    }
+
+    // Destructor
+    ~BinaryHeap() {
+        deleteBH(root);
+    }
+
+    // Getters
+    Node<T> *getRoot() const {
+        return root;
+    }
+    int getNumberOfElements() const {
+        return numberOfElements;
+    }
+    int getHeight() const {
+        return height;
+    }
+
+    // Setters
+    void setRoot(Node<T> *newRoot) {
+        root = newRoot;
+    }
+    void setNumberOfElements(int num) {
+        numberOfElements = num;
+    }
+    void setHeight(int newHeight) {
+        height = newHeight;
+    }
+
+    void deleteBH(Node<T>* node) {
+        if (node == nullptr) {
+            return;
+        }
+        // recursively delete left and right subtrees
+        deleteBH(node->getLeftChild());
+        deleteBH(node->getRightChild());
+
+        // delete the current node
+        delete node;
+    }
+
+    void insert(T data) {
+        heap.push_back(data);
+        heapifyUp(heap.size() - 1);
+    }
+
+    T peek() {
+        return heap.front();
+    }
+
+    void remove() {
+        if (heap.empty()) return;
+        heap[0] = heap.back();
+        heap.pop_back();
+        heapifyDown(0);
+    }
+
+    bool isEmpty() {
+        return heap.empty();
+    }
+
+    void print() {
+        for (auto& data : heap) {
+            cout << data.getSourceVertex() << " - " << data.getDestinationVertex() << ": " << data.getEdgeCost() << endl;
+        }
+    }
+
+//    void print() {
+//        if (root != nullptr) {
+//            root->print();
+//        }
+//    }
+
+//    // print entire BH recursively
+//    void print() const {
+//        bool first = true;
+//        printBH(root, first);
+//        cout << endl;
+//    }
+//
+//    // pre-order print
+//    void printBH(Node<T> *node, bool& first) const {
+//        if (node == nullptr) {
+//            return; // if null node
+//        }
+//        if (!first) {
+//            cout << ", "; // print comma if not the last element
+//        }
+//        node->getData()->print(); // print node value
+//        first = false;
+//        printBH(node->getLeftChild(), first); // print left
+//        printBH(node->getRightChild(), first); // print right
+//    }
+
+    //add an element to the heap
+    // this method inserts the data into the heap and heapifies. This method return nothing.
+//    Node<T> *insertElementBST(Node<T> *node, T *data) {
+//        if (node == nullptr) { // if empty, return node
+//            return new Node<T>(data);
+//        }
+//        if (data->getValue() < node->getData()->getValue()) { // if smaller than parent, left child
+//            node->setLeftChild(insertElementBST(node->getLeftChild(), data));
+//        }
+//        else if (data->getValue() > node->getData()->getValue()) { // if larger than parent, right child
+//            node->setRightChild(insertElementBST(node->getRightChild(), data));
+//        }
+//
+//        // After insertion, update the height of the tree
+//        height = calculateHeight(root);
+//
+//        return node;
+//    }
+
+//    // Function to calculate the height of a node
+//    int calculateHeight(Node<T> *node) {
+//        if (node == nullptr) {
+//            return -1; // Height of an empty tree is -1
+//        } else {
+//            return 1 + max(calculateHeight(node->getLeftChild()), calculateHeight(node->getRightChild()));
+//        }
+//    }
+
+//    int parent(int index) {
+//        return (index - 1) / 2;
+//    }
+
+    // POP: remove the smallest element from the heap
+    // this method finds the smallest element in the tree and returns it to the calling method and heapifies. It returns the data object.
+    T deleteMin() { // "POP"
+        // Return the smallest element and remove it from the heap
+    }
+
+    // find the smallest element in the tree and print it
+//    void findSmallest() {
+//        Node<T>* smallest = findSmallestHelper(root);
+//        if (smallest != nullptr) {
+//            smallest->getData()->print();
+//            cout << endl;
+//        } else {
+//            cout << "empty" << endl;
+//        }
+//    }
+//    // recursive function to find the smallest element
+//    Node<T>* findSmallestHelper(Node<T>* node) const {
+//        if (node == nullptr || node->getLeftChild() == nullptr) {
+//            return node;
+//        }
+//        return findSmallestHelper(node->getLeftChild());
+//    }
+
+//    // check if the heap is empty
+//    bool empty() {
+//        // Return true if the heap is empty, false otherwise
+//    }
+
 };
 
 
@@ -108,87 +311,12 @@ public:
         edgeCost = newEdgeCost;
     }
 
-    // print the edgeCost
+    // print the vertex info
     void print() const {
         cout << sourceVertex << " - " << destinationVertex << " -> " << edgeCost << endl;
     }
 
     //compare method to compare values of edgeCost
-};
-
-
-// Binary Heap Class: Container for Nodes
-template<typename T>
-class BinaryHeap {
-private:
-    Node<T> *root;
-    int numberOfElements;
-    int height;
-
-public:
-    // Constructor
-    BinaryHeap(T *data) {
-        root = new Node<T>(data);
-        numberOfElements = 0;
-        height = 0;
-    }
-
-    // Destructor
-    ~BinaryHeap() {
-        deleteBH(root);
-    }
-
-    void deleteBH(Node<T>* node) {
-        if (node == nullptr) {
-            return;
-        }
-        // delete left subtree
-        deleteBH(node->getLeftChild());
-
-        // delete right subtree
-        deleteBH(node->getRightChild());
-
-        // delete the node
-        delete node;
-    }
-
-    // Getters
-    Node<T> *getRoot() const {
-        return root;
-    }
-    int getNumberOfElements() const {
-        return numberOfElements;
-    }
-    int getHeight() const {
-        return height;
-    }
-
-    // Setters
-    void setRoot(Node<T> *newRoot) {
-        root = newRoot;
-    }
-    void setNumberOfElements(int num) {
-        numberOfElements = num;
-    }
-    void setHeight(int newHeight) {
-        height = newHeight;
-    }
-
-    void print() {
-        if (root != nullptr) {
-            root->print();
-        }
-    }
-
-    // this method inserts the data into the heap and heapifies. This method return nothing.
-    void insertElement(T* data) {
-
-    }
-
-    // this method finds the smallest element in the tree and returns it to the calling method and heapifies. It returns the data object.
-    Data deleteMin() {
-
-    }
 };
 
 
