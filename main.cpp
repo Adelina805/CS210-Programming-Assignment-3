@@ -72,8 +72,10 @@ public:
 
     // compare Data values
     bool compare(const Node<T>* otherNode) const {
-        // This class must have a compare method to compare Data values.
-
+        if (otherNode == nullptr) {
+            return false;
+        }
+        return *(this->data) == *(otherNode->getData());
     }
 };
 
@@ -134,16 +136,19 @@ public:
         delete node;
     }
 
-    void heapifyUp(int index) {
+    void heapifyUp(int index) { // heapify
         if (index <= 0) return;
         int parent = (index - 1) / 2;
+
         if (heap[parent].getEdgeCost() > heap[index].getEdgeCost()) {
+
             swap(heap[parent], heap[index]);
+
             heapifyUp(parent);
         }
     }
 
-    void heapifyDown(int index) {
+    void heapifyDown(int index) { // heapify
         int left = 2 * index + 1;
         int right = 2 * index + 2;
         int smallest = index;
@@ -209,9 +214,11 @@ public:
     int getSourceVertex() const {
         return sourceVertex;
     }
+
     int getDestinationVertex() const {
         return destinationVertex;
     }
+
     int getEdgeCost() const {
         return edgeCost;
     }
@@ -220,9 +227,11 @@ public:
     void setSourceVertex(int newSourceVertex) {
         sourceVertex = newSourceVertex;
     }
+
     void setDestinationVertex(int newDestinationVertex) {
         destinationVertex = newDestinationVertex;
     }
+
     void setEdgeCost(int newEdgeCost) {
         edgeCost = newEdgeCost;
     }
@@ -232,7 +241,10 @@ public:
         cout << sourceVertex << " - " << destinationVertex << " -> " << edgeCost << endl;
     }
 
-    //compare method to compare values of edgeCost
+    // compare edgeCost values
+    bool compare(const Data& otherData) const {
+        return this->edgeCost == otherData.getEdgeCost();
+    }
 };
 
 
@@ -253,25 +265,25 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
     }
 
     // print expected output
-    cout << "Prim's MST:" << endl << endl;
+    cout << "Prim's MST is Edge -> Cost" << endl;
 
     while(!binHeap->isEmpty()) { // while priority queue is not empty
-        Data edge = binHeap->deleteMin();
-        binHeap->remove(); // remove top element
+        Data edge = binHeap->deleteMin(); // get smallest and delete
+        binHeap->remove(); // remove it from priority queue
 
         int firstVertex = edge.getSourceVertex();
         int secondVertex = edge.getDestinationVertex();
 
-        // get the edge with the smallest weight
-        if (!visited[firstVertex] || !visited[secondVertex]) { // if the edge does not form a cycle (both visited)
+        // if the edge does not form a cycle (if at least one has not been visited)
+        if (!visited[firstVertex] || !visited[secondVertex]) {
 
-            visited[firstVertex] = visited[secondVertex] = true; // set the unvisited vertex as visited
+            visited[firstVertex] = visited[secondVertex] = true; // set both the vertices as visited
 
-            cout << firstVertex << " - " << secondVertex << " -> " << edge.getEdgeCost() << endl; // print the vertices with the min edge cost
+            cout << firstVertex << " - " << secondVertex << " -> " << edge.getEdgeCost() << endl; // print the vertex and it's the min edge cost
 
             // add all edges adjacent to the new vertex to the priority queue
             for (int i = 0; i < VERTEXCOUNT; ++i) {
-                if (G[secondVertex][i] != 0 && !visited[i]) { // if adjacent and unvisited insert into the binary heap
+                if (G[secondVertex][i] != 0 && !visited[i]) { // if adjacent and unvisited, add to pq and insert into the binary heap
                     binHeap->insertElement(Data(secondVertex, i, G[secondVertex][i]));
                 }
             }
