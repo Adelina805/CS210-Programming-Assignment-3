@@ -1,19 +1,30 @@
-Step 1: Determine an arbitrary vertex as the starting vertex of the MST.
-Step 2: Follow steps 3 to 5 till there are vertices that are not included in the MST (known as fringe vertex).
-Step 3: Find edges connecting any tree vertex with the fringe vertices.
-Step 4: Find the minimum among these edges.
-Step 5: Add the chosen edge to the MST if it does not form any cycle.
-Step 6: Return the MST and exit
+ReadMe.pdf
+• Author Name
+• Answer the following questions:
+o Explain what a Minimum Spanning Tree is in your own words
+o What are the preconditions to run the Prim’s algorithm?
+o What is the input and output of the Prim’s algorithm? Write it mathematically.
+o What are some real-world applications of Minimum Spanning Trees?
 
 
-How to implement Prim’s Algorithm?
+Adelina Martinez
 
-Follow the given steps to utilize the Prim’s Algorithm mentioned above for finding MST of a graph:
+- A minimum spanning tree is a subgraph of a tree that connects all of the tree's vertices
+using the smallest amount of edges (for unweighted) or the lowest combination of edge
+costs (for weighted), while also creating no cycles.
 
-Create a set mstSet that keeps track of vertices already included in MST.
-Assign a key value to all vertices in the input graph. Initialize all key values as INFINITE. Assign the key value as 0 for the first vertex so that it is picked first.
-While mstSet doesn’t include all vertices
-Pick a vertex u that is not there in mstSet and has a minimum key value.
-Include u in the mstSet.
-Update the key value of all adjacent vertices of u. To update the key values, iterate through all adjacent vertices.
-For every adjacent vertex v, if the weight of edge u-v is less than the previous key value of v, update the key value as the weight of u-v.
+- The preconditions for Prim's algorithm are that the graph is weighted and connected, as
+well as having no negative edge weights. Before Prim's algorithm you also have to choose
+a starting vertex, have all the vertices initialized, and have a priority queue or something
+similar ready.
+
+- For Prim's algorithm, input is represented as the graph G = (V, E) where V is the set of
+vertices and E is the set of edges, and output is represented as the minimum spanning tree
+T = (V, E') where E' is the minimum total weight of the set of edges V. Input is a graph
+with weighted connected edges and output is the mst of that graph.
+
+- Some real world applications of Minimum Spanning Trees are GPS for the shortest route of
+travel from A to B, online shopping graphs of customer purchases to find what the shortest
+or closest thing they would be interested in, in power line distribution to find the most
+optimal way to minimize the length of power lines, and in urban planning to design roads,
+bicycle paths, and pedestrian walkways.
