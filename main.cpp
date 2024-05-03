@@ -19,6 +19,9 @@ public:
         edgeCost = cost;
     }
 
+    Data() {
+    }
+
     // Getters
     int getSourceVertex() const {
         return sourceVertex;
@@ -143,10 +146,11 @@ private:
 
 public:
     // Constructor
-    BinaryHeap(T *data, T heap[100]) {
+    BinaryHeap(T *data) {
         root = new Node<T>(data);
         numberOfElements = 0;
         height = 0;
+        heap = new T[100];
     }
 
     // Destructor
@@ -242,16 +246,25 @@ public:
         return heapSize == 0;
     }
 
-    void print() {
+    void print() const {
         for (int i = 0; i < heapSize; ++i) {
-            cout << heap[index]->getData()->getSourceVertex() << " - " << heap[index].getDestinationVertex() << ": " << heap[index].getEdgeCost() << endl;
-            }
+            heap[i].print();
+        }
     }
 };
 
 
 // This method runs the prims algorithm on the graph and prints the output
 void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
+
+    // PRINT INITIAL 2D ARRAY
+    for (int i = 0; i < VERTEXCOUNT; i++) {
+        // Loop through each column in the current row
+        for (int j = 0; j < VERTEXCOUNT; j++) {
+            // Print the value at index [i][j]
+            cout << i << " - " << j << " => " << G[i][j] << endl;
+        }
+    } cout << endl;
 
     // initialize visited/unvisited array "0" = false = unvisited and "1" = true = visited
     bool visited[VERTEXCOUNT];
@@ -268,9 +281,12 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
     // add all edges adjacent to the start vertex to the priority queue
     for(int i = 0; i < VERTEXCOUNT; ++i) {
         if(G[0][i] != 0) { // if adjacent insert into the binary heap
+            cout << G[0][i] << " insert" << endl;
             binHeap->insertElement(Data(0, i, G[0][i]));
         }
     }
+
+    binHeap->print();
 
     // print visited/unvisited array
     cout << "initial visited/unvisited: " << endl;
@@ -337,7 +353,7 @@ int main() {
     Data *newData = new Data(i, j, G[i][j]);
 
     // initialize Binary Heap
-    BinaryHeap<Data> *binHeap = new BinaryHeap<Data>(newData, nullptr);
+    BinaryHeap<Data> *binHeap = new BinaryHeap<Data>(newData);
 
     // call runPrims method
     runPrims(G, binHeap);
