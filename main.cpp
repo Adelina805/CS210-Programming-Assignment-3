@@ -1,10 +1,61 @@
 #include <iostream>
 #include <utility>
+#include <queue>
 using namespace std;
 
-// save
-
 const int VERTEXCOUNT = 5;
+
+// Data Class: the data that goes inside the node
+class Data {
+private:
+    int sourceVertex;
+    int destinationVertex;
+    int edgeCost;
+
+public:
+    // Constructor
+    Data(int source, int destination, int cost) {
+        sourceVertex = source;
+        destinationVertex = destination;
+        edgeCost = cost;
+    }
+
+    // Getters
+    int getSourceVertex() const {
+        return sourceVertex;
+    }
+
+    int getDestinationVertex() const {
+        return destinationVertex;
+    }
+
+    int getEdgeCost() const {
+        return edgeCost;
+    }
+
+    // Setter
+    void setSourceVertex(int newSourceVertex) {
+        sourceVertex = newSourceVertex;
+    }
+
+    void setDestinationVertex(int newDestinationVertex) {
+        destinationVertex = newDestinationVertex;
+    }
+
+    void setEdgeCost(int newEdgeCost) {
+        edgeCost = newEdgeCost;
+    }
+
+    // print the vertex info
+    void print() const {
+        cout << sourceVertex << " - " << destinationVertex << " -> " << edgeCost << endl;
+    }
+
+    // compare edgeCost values
+    bool compare(const Data& otherData) const {
+        return edgeCost < otherData.getEdgeCost();
+    }
+};
 
 // Node Class: Nodes for Binary Heap
 template<typename T>
@@ -78,10 +129,6 @@ public:
         }
         return *(this->data) == *(otherNode->getData());
     }
-
-    bool getEdgeCost() {
-        return false;
-    }
 };
 
 
@@ -98,7 +145,7 @@ public:
     BinaryHeap(T *data) {
         Node<T> *newNode = new Node<T>(data);
         root = newNode;
-        numberOfElements = 2;
+        numberOfElements = 1;
         height = 0;
     }
 
@@ -145,7 +192,7 @@ public:
         if (node == root) return;
         Node<T>* parent = node->getParent();
 
-        if (parent->getEdgeCost() > node->getEdgeCost()) {
+        if ((parent->getData()->getEdgeCost()) > (node->getData()->getEdgeCost())) {
             swap(parent, node);
             heapifyUp(parent);
         }
@@ -156,11 +203,11 @@ public:
         Node<T>* right = node->getRightChild();
         Node<T>* smallest = node;
 
-        if (left != nullptr && left->getEdgeCost() < smallest->getEdgeCost()) {
+        if (left != nullptr && left->getData()->getEdgeCost() < smallest->getData()->getEdgeCost()) {
             smallest = left;
         }
 
-        if (right != nullptr && right->getEdgeCost() < smallest->getEdgeCost()) {
+        if (right != nullptr && right->getData()->getEdgeCost() < smallest->getData()->getEdgeCost()) {
             smallest = right;
         }
 
@@ -168,6 +215,12 @@ public:
             swap(node, smallest);
             heapifyDown(smallest);
         }
+    }
+
+    void swap(Node<T>* node1, Node<T>* node2) {
+        T* temp = node1->getData();
+        node1->setData(node2->getData());
+        node2->setData(temp);
     }
 
     // insert element recursively
@@ -202,21 +255,66 @@ public:
         }
     }
 
-    T deleteMin() {
-        return *root->getData();
+    T* deleteMin() {
+        if (root == nullptr) {
+            return nullptr; // Heap is empty
+        }
+
+        // Save the root node's data to return
+        T* minData = root->getData();
+
+        if (root->getLeftChild() == nullptr && root->getRightChild() == nullptr) {
+            // Only one node in the heap
+            delete root;
+            root = nullptr;
+            numberOfElements = 0;
+            height = -1;
+        } else {
+            // Replace the root node's data with the last node's data
+            Node<T>* lastNode = findLastNode(root);
+            root->setData(lastNode->getData());
+
+            // Remove the last node
+            Node<T>* parent = lastNode->getParent();
+            if (parent->getLeftChild() == lastNode) {
+                parent->setLeftChild(nullptr);
+            } else {
+                parent->setRightChild(nullptr);
+            }
+            delete lastNode;
+
+            // Heapify the root node
+            heapifyDown(root);
+            numberOfElements--;
+            height = calculateHeight(root);
+        }
+
+        return minData;
     }
 
-    Node<T> *findLastNode(Node<T> *pNode) {
-        return nullptr;
-    }
+    Node<T>* findLastNode(Node<T>* node) {
+        if (node == nullptr)
+            return nullptr;
 
-    void remove() {
-        if (root == nullptr) return;
-        // You need to implement a method to find the last node in the heap
-        Node<T>* lastNode = findLastNode(root);
-        root->setData(lastNode->getData());
-        delete lastNode;
-        heapifyDown(root);
+        Node<T>* lastNode = nullptr;
+        queue<Node<T>*> q;
+        q.push(node);
+
+        while (!q.empty()) {
+            Node<T>* temp = q.front();
+            q.pop();
+
+            if (temp->getLeftChild() == nullptr && temp->getRightChild() == nullptr) {
+                lastNode = temp;
+            } else {
+                if (temp->getLeftChild())
+                    q.push(temp->getLeftChild());
+                if (temp->getRightChild())
+                    q.push(temp->getRightChild());
+            }
+        }
+
+        return lastNode;
     }
 
     bool isEmpty() {
@@ -226,63 +324,10 @@ public:
     void print() {
         if (root != nullptr) {
             T data = *root->getData();
-            cout << data.getSourceVertex() << " - " << data.getDestinationVertex() << ": " << data.getEdgeCost() << endl;
+            data.print();
         } else {
             cout << "Heap is empty." << endl;
         }
-    }
-};
-
-
-// Data Class: the data that goes inside the node
-class Data {
-private:
-    int sourceVertex;
-    int destinationVertex;
-    int edgeCost;
-
-public:
-    // Constructor
-    Data(int source, int destination, int cost) {
-        sourceVertex = source;
-        destinationVertex = destination;
-        edgeCost = cost;
-    }
-
-    // Getters
-    int getSourceVertex() const {
-        return sourceVertex;
-    }
-
-    int getDestinationVertex() const {
-        return destinationVertex;
-    }
-
-    int getEdgeCost() const {
-        return edgeCost;
-    }
-
-    // Setter
-    void setSourceVertex(int newSourceVertex) {
-        sourceVertex = newSourceVertex;
-    }
-
-    void setDestinationVertex(int newDestinationVertex) {
-        destinationVertex = newDestinationVertex;
-    }
-
-    void setEdgeCost(int newEdgeCost) {
-        edgeCost = newEdgeCost;
-    }
-
-    // print the vertex info
-    void print() const {
-        cout << sourceVertex << " - " << destinationVertex << " -> " << edgeCost << endl;
-    }
-
-    // compare edgeCost values
-    bool compare(const Data& otherData) const {
-        return this->edgeCost == otherData.getEdgeCost();
     }
 };
 
@@ -311,50 +356,57 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
     cout << "updated visited/unvisited: " << endl;
     for (int i = 0; i < VERTEXCOUNT; i++) {
         cout << visited[i] << " ";
-    }
-    cout << endl;
-    cout << endl;
-    cout << "Prim's MST:" << endl;
-    binHeap->print();
-    cout << endl; // if ALL vertices are visited and "true" the program ends
+    } cout << endl; cout << endl;
 
 
     // add all edges adjacent to the start vertex to the priority queue
     for(int i = 0; i < VERTEXCOUNT; ++i) {
         if(G[0][i] != 0) { // if adjacent insert into the binary heap
-            binHeap->insertElement(new Data(0, i, G[0][i]));
+            binHeap->insertElement( new Data(0, i, G[0][i]));
         }
     }
+    cout << "after insert: " << endl; binHeap->print(); cout << endl;
+
+
+    // DELETE LATER
+    // print visited/unvisited array
+    cout << "updated visited/unvisited: " << endl;
+    for (int i = 0; i < VERTEXCOUNT; i++) {
+        cout << visited[i] << " ";
+    } cout << endl; cout << endl;
+
+    // test
+    Data *E = binHeap->deleteMin(); // get smallest and delete
+    cout << "source: " << E->getSourceVertex() << " destination: " << E->getDestinationVertex() << " cost: " << E->getEdgeCost();
 
     // print expected output
     cout << "Prim's MST is Edge -> Cost" << endl;
 
     while(!binHeap->isEmpty()) { // while priority queue is not empty
-        Data edge = binHeap->deleteMin(); // get smallest and delete
-        binHeap->remove(); // remove it from priority queue
 
-        int firstVertex = edge.getSourceVertex();
-        int secondVertex = edge.getDestinationVertex();
+        Data *edge = binHeap->deleteMin(); // get smallest and delete
+
+        int firstVertex = edge->getSourceVertex();
+        int secondVertex = edge->getDestinationVertex();
 
         // if the edge does not form a cycle (if at least one has not been visited)
         if (!visited[firstVertex] || !visited[secondVertex]) {
 
             visited[firstVertex] = visited[secondVertex] = true; // set both the vertices as visited
 
-            cout << firstVertex << " - " << secondVertex << " -> " << edge.getEdgeCost() << endl; // print the vertex and it's the min edge cost
+            cout << firstVertex << " - " << secondVertex << " => " << edge->getEdgeCost() << endl;
 
             // add all edges adjacent to the new vertex to the priority queue
             for (int i = 0; i < VERTEXCOUNT; ++i) {
+
                 if (G[secondVertex][i] != 0 && !visited[i]) { // if adjacent and unvisited, add to pq and insert into the binary heap
                     binHeap->insertElement(new Data(secondVertex, i, G[secondVertex][i]));
                 }
             }
         }
-        binHeap->print();
-        cout << "print 1" << endl;
+        delete edge;
     }
-    binHeap->print();
-    cout << "print 2 " << endl;
+    delete E;
 }
 
 
