@@ -3,7 +3,6 @@
 using namespace std;
 
 const int VERTEXCOUNT = 5;
-const int MAX_SIZE = 100;
 
 // Data Class: the data that goes inside the node
 class Data {
@@ -139,12 +138,12 @@ private:
     Node<T> *root;
     int numberOfElements;
     int height;
-    T heap[100];
+    T* heap;
     int heapSize = 0;
 
 public:
     // Constructor
-    BinaryHeap(T *data) {
+    BinaryHeap(T *data, T heap[100]) {
         root = new Node<T>(data);
         numberOfElements = 0;
         height = 0;
@@ -244,7 +243,9 @@ public:
     }
 
     void print() {
-        cout << data.getSourceVertex() << " - " << data.getDestinationVertex() << ": " << data.getEdgeCost() << endl;
+        for (int i = 0; i < heapSize; ++i) {
+            cout << heap[index]->getData()->getSourceVertex() << " - " << heap[index].getDestinationVertex() << ": " << heap[index].getEdgeCost() << endl;
+            }
     }
 };
 
@@ -336,7 +337,7 @@ int main() {
     Data *newData = new Data(i, j, G[i][j]);
 
     // initialize Binary Heap
-    BinaryHeap<Data> *binHeap = new BinaryHeap<Data>(newData);
+    BinaryHeap<Data> *binHeap = new BinaryHeap<Data>(newData, nullptr);
 
     // call runPrims method
     runPrims(G, binHeap);
