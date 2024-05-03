@@ -134,15 +134,15 @@ public:
     }
 };
 
+
 // Binary Heap Class: Container for Nodes
 template<typename T>
 class BinaryHeap {
 private:
-    Node<T> *root;
+    T* heap;
     int numberOfElements;
     int height;
-    T* heap;
-    int heapSize = 0;
+    Node<T> *root;
 
 public:
     // Constructor
@@ -193,13 +193,10 @@ public:
     }
 
     void heapifyUp(int index) { // heapify
-        if (index <= 0) return;
         int parent = (index - 1) / 2;
 
-        if (heap[parent].getEdgeCost() > heap[index].getEdgeCost()) {
-
+        if (parent >= 0 && heap[parent].getEdgeCost() > heap[index].getEdgeCost()) {
             swap(heap[parent], heap[index]);
-
             heapifyUp(parent);
         }
     }
@@ -209,11 +206,11 @@ public:
         int right = 2 * index + 2;
         int smallest = index;
 
-        if (left < heapSize && heap[left].getEdgeCost() < heap[smallest].getEdgeCost()) {
+        if (left < numberOfElements && heap[left].getEdgeCost() < heap[smallest].getEdgeCost()) {
             smallest = left;
         }
 
-        if (right < heapSize && heap[right].getEdgeCost() < heap[smallest].getEdgeCost()) {
+        if (right < numberOfElements && heap[right].getEdgeCost() < heap[smallest].getEdgeCost()) {
             smallest = right;
         }
 
@@ -224,32 +221,33 @@ public:
     }
 
     void insertElement(T data) {
-        heap[heapSize] = data;
-        heapifyUp(heapSize);
-        heapSize++;
+        heap[numberOfElements] = data;
+        heapifyUp(numberOfElements);
+        numberOfElements++;
     }
 
     T deleteMin() {
-        return heap[0];
-    }
-
-    void remove() {
-        if (heapSize == 0) {
-            return;
+        if (numberOfElements == 0) {
+            cout << "Heap is empty" << endl;
+            return Data();
         }
-        heap[0] = heap[heapSize - 1];
-        heapSize--;
-        heapifyDown(0);
-    }
 
-    bool isEmpty() {
-        return heapSize == 0;
+        T minElement = heap[0];
+        heap[0] = heap[numberOfElements - 1];
+        numberOfElements--;
+        heapifyDown(0);
+
+        return minElement;
     }
 
     void print() const {
-        for (int i = 0; i < heapSize; ++i) {
+        for (int i = 0; i < numberOfElements; ++i) {
             heap[i].print();
         }
+    }
+
+    bool isEmpty() {
+        return numberOfElements == 0;
     }
 };
 
@@ -301,7 +299,6 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
 
     while(!binHeap->isEmpty()) { // while priority queue is not empty
         Data edge = binHeap->deleteMin(); // get smallest and delete
-        binHeap->remove(); // remove it from priority queue
 
         //test
         cout << "current heap: " << endl; binHeap->print(); cout << endl;
