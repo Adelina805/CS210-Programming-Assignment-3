@@ -320,11 +320,12 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
 
             visited[firstVertex] = visited[secondVertex] = true; // set both the vertices as visited
 
-            cout << "expected: " << firstVertex << " - " << secondVertex << " -> " << edge.getEdgeCost() << endl << endl; // print the vertex and it's the min edge cost
+            cout << "expected: " << firstVertex << " - " << secondVertex << " -> " << edge.getEdgeCost() << endl; // print the vertex and it's the min edge cost
 
             // add all edges adjacent to the new vertex to the priority queue
             for (int i = 0; i < VERTEXCOUNT; ++i) {
                 if (G[secondVertex][i] != 0 && !visited[i]) { // if adjacent and unvisited, add to pq and insert into the binary heap
+                    cout << "adding: " << firstVertex << " - " << secondVertex << " -> " << edge.getEdgeCost() << endl << endl;;
                     binHeap->insertElement(Data(secondVertex, i, G[secondVertex][i]));
                 }
             }
