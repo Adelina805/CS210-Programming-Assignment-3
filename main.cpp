@@ -1,9 +1,9 @@
 #include <iostream>
-#include <vector>
 #include <utility>
 using namespace std;
 
 const int VERTEXCOUNT = 5;
+const int MAX_SIZE = 100;
 
 // Data Class: the data that goes inside the node
 class Data {
@@ -132,7 +132,6 @@ public:
     }
 };
 
-
 // Binary Heap Class: Container for Nodes
 template<typename T>
 class BinaryHeap {
@@ -140,7 +139,8 @@ private:
     Node<T> *root;
     int numberOfElements;
     int height;
-    vector<T> heap;
+    T heap[100];
+    int heapSize = 0;
 
 public:
     // Constructor
@@ -206,11 +206,11 @@ public:
         int right = 2 * index + 2;
         int smallest = index;
 
-        if (left < heap.size() && heap[left].getEdgeCost() < heap[smallest].getEdgeCost()) {
+        if (left < heapSize && heap[left].getEdgeCost() < heap[smallest].getEdgeCost()) {
             smallest = left;
         }
 
-        if (right < heap.size() && heap[right].getEdgeCost() < heap[smallest].getEdgeCost()) {
+        if (right < heapSize && heap[right].getEdgeCost() < heap[smallest].getEdgeCost()) {
             smallest = right;
         }
 
@@ -221,29 +221,30 @@ public:
     }
 
     void insertElement(T data) {
-        heap.push_back(data);
-        heapifyUp(heap.size() - 1);
+        heap[heapSize] = data;
+        heapifyUp(heapSize);
+        heapSize++;
     }
 
     T deleteMin() {
-        return heap.front();
+        return heap[0];
     }
 
     void remove() {
-        if (heap.empty()) return;
-        heap[0] = heap.back();
-        heap.pop_back();
+        if (heapSize == 0) {
+            return;
+        }
+        heap[0] = heap[heapSize - 1];
+        heapSize--;
         heapifyDown(0);
     }
 
     bool isEmpty() {
-        return heap.empty();
+        return heapSize == 0;
     }
 
     void print() {
-        for (auto& data : heap) {
-            cout << data.getSourceVertex() << " - " << data.getDestinationVertex() << ": " << data.getEdgeCost() << endl;
-        }
+        cout << data.getSourceVertex() << " - " << data.getDestinationVertex() << ": " << data.getEdgeCost() << endl;
     }
 };
 
