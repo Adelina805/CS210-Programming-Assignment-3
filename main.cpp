@@ -19,8 +19,7 @@ public:
         edgeCost = cost;
     }
 
-    Data() {
-    }
+    Data() = default;
 
     // Getters
     int getSourceVertex() const {
@@ -48,14 +47,14 @@ public:
         edgeCost = newEdgeCost;
     }
 
-    // print the vertex info
-    void print() const {
-        cout << sourceVertex << " - " << destinationVertex << " -> " << edgeCost << endl;
-    }
-
     // compare edgeCost values
     bool compare(const Data& otherData) const {
         return this->edgeCost == otherData.getEdgeCost();
+    }
+
+    // print the vertex info
+    void print() const {
+        cout << sourceVertex << " - " << destinationVertex << " -> " << edgeCost << endl;
     }
 };
 
@@ -118,19 +117,19 @@ public:
         this->parent = newParent;
     }
 
-    // Print
-    void print() {
-        if (data != nullptr) {
-            data->print();
-        }
-    }
-
     // compare Data values
     bool compare(const Node<T>* otherNode) const {
         if (otherNode == nullptr) {
             return false;
         }
         return *(this->data) == *(otherNode->getData());
+    }
+
+    // Print
+    void print() {
+        if (data != nullptr) {
+            data->print();
+        }
     }
 };
 
@@ -139,10 +138,10 @@ public:
 template<typename T>
 class BinaryHeap {
 private:
-    T* heap;
+    Node<T> *root;
     int numberOfElements;
     int height;
-    Node<T> *root;
+    T* heap;
 
 public:
     // Constructor
@@ -220,12 +219,14 @@ public:
         }
     }
 
+    // this method inserts the data into the heap and heapifies
     void insertElement(T data) {
         heap[numberOfElements] = data;
         heapifyUp(numberOfElements);
         numberOfElements++;
     }
 
+    // this method finds the smallest element in the tree and returns it to the calling method and heapifies
     T deleteMin() {
         if (numberOfElements == 0) {
             cout << "Heap is empty" << endl;
@@ -240,14 +241,14 @@ public:
         return minElement;
     }
 
+    bool isEmpty() {
+        return numberOfElements == 0;
+    }
+
     void print() const {
         for (int i = 0; i < numberOfElements; ++i) {
             heap[i].print();
         }
-    }
-
-    bool isEmpty() {
-        return numberOfElements == 0;
     }
 };
 
@@ -255,59 +256,24 @@ public:
 // This method runs the prims algorithm on the graph and prints the output
 void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
 
-    // PRINT INITIAL 2D ARRAY
-    for (int i = 0; i < VERTEXCOUNT; i++) {
-        // Loop through each column in the current row
-        for (int j = 0; j < VERTEXCOUNT; j++) {
-            // Print the value at index [i][j]
-            cout << i << " - " << j << " => " << G[i][j] << endl;
-        }
-    } cout << endl;
-
     // initialize visited/unvisited array "0" = false = unvisited and "1" = true = visited
     bool visited[VERTEXCOUNT];
     for (int i = 0; i < VERTEXCOUNT; i++) {
         visited[i] = false; // set all to unvisited
     }
 
-    // print visited/unvisited array
-    cout << "initial visited/unvisited: " << endl;
-    for (int i = 0; i < VERTEXCOUNT; i++) {
-        cout << visited[i] << " ";
-    } cout << endl << endl;
-
     // add all edges adjacent to the start vertex to the priority queue
     for(int i = 0; i < VERTEXCOUNT; ++i) {
         if(G[0][i] != 0) { // if adjacent insert into the binary heap
-            cout << G[0][i] << " insert" << endl;
             binHeap->insertElement(Data(0, i, G[0][i]));
         }
     }
 
-    binHeap->print();
-
-    // print visited/unvisited array
-    cout << "initial visited/unvisited: " << endl;
-    for (int i = 0; i < VERTEXCOUNT; i++) {
-        cout << visited[i] << " ";
-    } cout << endl << endl;
-
     // print expected output
-    cout << "Prim's MST is Edge -> Cost" << endl; cout << endl;
-    //test
-    cout << "current heap: " << endl; binHeap->print(); cout << endl;
+    cout << "Prim's MST is Edge -> Cost" << endl;
 
     while(!binHeap->isEmpty()) { // while priority queue is not empty
         Data edge = binHeap->deleteMin(); // get smallest and delete
-
-        //test
-        cout << "current heap: " << endl; binHeap->print(); cout << endl;
-        // print visited/unvisited array
-        cout << "current initial visited/unvisited: " << endl;
-        for (int i = 0; i < VERTEXCOUNT; i++) {
-            cout << visited[i] << " ";
-        } cout << endl << endl;
-
 
         int firstVertex = edge.getSourceVertex();
         int secondVertex = edge.getDestinationVertex();
@@ -317,18 +283,16 @@ void runPrims(int G[VERTEXCOUNT][VERTEXCOUNT], BinaryHeap<Data>* binHeap) {
 
             visited[firstVertex] = visited[secondVertex] = true; // set both the vertices as visited
 
-            cout << "expected: " << firstVertex << " - " << secondVertex << " -> " << edge.getEdgeCost() << endl; // print the vertex and it's the min edge cost
+            cout << firstVertex << " - " << secondVertex << " -> " << edge.getEdgeCost() << endl; // print the vertex and it's the min edge cost
 
             // add all edges adjacent to the new vertex to the priority queue
             for (int i = 0; i < VERTEXCOUNT; ++i) {
                 if (G[secondVertex][i] != 0 && !visited[i]) { // if adjacent and unvisited, add to pq and insert into the binary heap
-                    cout << "adding: " << firstVertex << " - " << secondVertex << " -> " << edge.getEdgeCost() << endl << endl;;
                     binHeap->insertElement(Data(secondVertex, i, G[secondVertex][i]));
                 }
             }
         }
     }
-    cout << "FINAL heap: " << endl; binHeap->print(); cout << endl;
 }
 
 
